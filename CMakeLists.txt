@@ -15,5 +15,11 @@ include(deps/bgfx.cmake/cmake/util/ConfigureDebugging.cmake)
 find_package(GLFW REQUIRED)
 add_executable(graphics-playground src/main.cpp)
 
-target_link_libraries(graphics-playground PUBLIC bgfx ${GLFW_LIBRARIES})
-target_include_directories(graphics-playground PUBLIC ${GLFW_INCLUDE_DIRS})
+target_link_libraries(graphics-playground PUBLIC
+    bgfx
+    ${GLFW_LIBRARIES}
+    flecs_shared)
+
+target_include_directories(graphics-playground PUBLIC 
+    ${GLFW_INCLUDE_DIRS}
+    deps/flecs/include)

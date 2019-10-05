@@ -6,6 +6,7 @@
 #include <iostream>
 
 #include <bgfx/platform.h>
+#include <flecs.h>
 
 const int SCREEN_WIDTH = 640;
 const int SCREEN_HEIGHT = 480;
@@ -17,7 +18,7 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
     }
 }
 
-int main()
+int main(int argc, char** argv)
 {
     if (!glfwInit()) {
         std::cerr << "Failed to init glfw\n";
@@ -49,6 +50,8 @@ int main()
     bgfx::reset(SCREEN_WIDTH, SCREEN_HEIGHT);
 
     bgfx::setViewClear(0, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, 0x303030ff, 1.0f, 0);
+
+    ecs_world_t* world = ecs_init_w_args(argc, argv);
 
     while (!glfwWindowShouldClose(window)) {
         glfwPollEvents();
