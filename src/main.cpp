@@ -44,6 +44,8 @@ int main()
 
     bgfx::init(init);
 
+    bgfx::setDebug(BGFX_DEBUG_TEXT);
+
     bgfx::reset(SCREEN_WIDTH, SCREEN_HEIGHT);
 
     bgfx::setViewClear(0, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, 0x303030ff, 1.0f, 0);
@@ -53,6 +55,10 @@ int main()
 
         bgfx::setViewRect(0, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
         bgfx::touch(0);
+
+        bgfx::dbgTextClear();
+        bgfx::dbgTextPrintf(0, 0, 0x0f, "Some text");
+
         bgfx::frame();
     }
 
