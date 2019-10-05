@@ -1,0 +1,11 @@
+#!/bin/bash
+
+set -e
+
+# rerun cmake if build directory doesn't exist
+if [ ! -d "build" ]; then
+   cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Debug
+fi
+
+cmake --build build 
+./build/graphics-playground
