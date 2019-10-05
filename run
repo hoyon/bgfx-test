@@ -4,6 +4,7 @@ set -e
 
 # rerun cmake if build directory doesn't exist
 if [ ! -d "build" ]; then
+   mkdir build
    cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Debug
 fi
 
