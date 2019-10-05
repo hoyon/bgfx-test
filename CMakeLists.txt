@@ -12,8 +12,8 @@ set(CMAKE_MODULE_PATH $(CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake"))
 add_subdirectory(deps)
 include(deps/bgfx.cmake/cmake/util/ConfigureDebugging.cmake)
 
-find_package(SDL2 REQUIRED)
+find_package(GLFW REQUIRED)
 add_executable(graphics-playground src/main.cpp)
 
-target_link_libraries(graphics-playground PUBLIC bgfx ${SDL2_LIBRARY})
-target_include_directories(graphics-playground PUBLIC ${SDL2_INCLUDE_DIRS})
+target_link_libraries(graphics-playground PUBLIC bgfx ${GLFW_LIBRARIES})
+target_include_directories(graphics-playground PUBLIC ${GLFW_INCLUDE_DIRS})

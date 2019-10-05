@@ -1,37 +1,38 @@
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_syswm.h>
+#define GLFW_EXPOSE_NATIVE_X11
+#define GLFW_EXPOSE_NATIVE_GLX
+#include <GLFW/glfw3.h>
+#include <GLFW/glfw3native.h>
+
 #include <iostream>
 
 #include <bgfx/platform.h>
-#include <bx/bx.h>
 
 const int SCREEN_WIDTH = 640;
 const int SCREEN_HEIGHT = 480;
 
+void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
+{
+    if (key == GLFW_KEY_Q && action == GLFW_PRESS) {
+        glfwSetWindowShouldClose(window, GLFW_TRUE);
+    }
+}
+
 int main()
 {
-    if (SDL_Init(SDL_INIT_EVERYTHING) < 0) {
-        std::cerr << "Failed to initialise SDL\n";
-        return EXIT_FAILURE;
+    if (!glfwInit()) {
+        std::cerr << "Failed to init glfw\n";
+        exit(EXIT_FAILURE);
     }
 
-    SDL_Window* window = SDL_CreateWindow("Graphics playground",
-                                          SDL_WINDOWPOS_UNDEFINED,
-                                          SDL_WINDOWPOS_UNDEFINED,
-                                          SCREEN_WIDTH,
-                                          SCREEN_HEIGHT,
-                                          SDL_WINDOW_SHOWN);
+    glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+    glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+    GLFWwindow* window = glfwCreateWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "graphics playground", nullptr, nullptr);
 
-    SDL_SysWMinfo window_info;
+    glfwSetKeyCallback(window, key_callback);
 
-    SDL_GetWindowWMInfo(window, &window_info);
-
-    bgfx::PlatformData platform_data; 
-    platform_data.nwh = (void*)window_info.info.x11.window;
-    platform_data.ndt = window_info.info.x11.display;
-    std::cerr << "before\n";
-    XLockDisplay(window_info.info.x11.display);
-    std::cerr << "after\n";
+    bgfx::PlatformData platform_data;
+    platform_data.nwh = (void*)glfwGetX11Window(window);
+    platform_data.ndt = glfwGetX11Display();
 
     bgfx::Init init;
     init.type = bgfx::RendererType::OpenGL;
@@ -41,20 +42,23 @@ int main()
     init.allocator = nullptr;
     init.platformData = platform_data;
 
-    bgfx::renderFrame();
-
     bgfx::init(init);
-    // bgfx::init();
 
     bgfx::reset(SCREEN_WIDTH, SCREEN_HEIGHT);
 
-    bgfx::touch(0);
+    bgfx::setViewClear(0, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, 0x303030ff, 1.0f, 0);
 
-    bgfx::frame();
+    while (!glfwWindowShouldClose(window)) {
+        glfwPollEvents();
 
-    SDL_Delay(2000);
-    SDL_DestroyWindow(window);
-    SDL_Quit();
+        bgfx::setViewRect(0, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+        bgfx::touch(0);
+        bgfx::frame();
+    }
+
+    bgfx::shutdown();
+    glfwDestroyWindow(window);
+    glfwTerminate();
 
     return EXIT_SUCCESS;
 }
