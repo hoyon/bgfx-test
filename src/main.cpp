@@ -11,6 +11,8 @@
 #include <bx/math.h>
 #include <flecs.h>
 
+#include "shader.hpp"
+
 const int SCREEN_WIDTH = 640;
 const int SCREEN_HEIGHT = 480;
 
@@ -28,53 +30,6 @@ public:
     float y;
     uint32_t abgr;
 };
-
-bgfx::ShaderHandle load_shader(const char* name)
-{
-    const char* shader_path = "????";
-
-    switch (bgfx::getRendererType())
-    {
-        case bgfx::RendererType::OpenGL:
-            shader_path = "shaders/glsl/";
-            break;
-        case bgfx::RendererType::Vulkan:
-            shader_path = "shaders/spirv/";
-            break;
-        default:
-            BX_CHECK(false, "Unsupported renderer type");
-            break;
-    }
-
-    char file_path[512];
-
-    bx::strCopy(file_path, BX_COUNTOF(file_path), shader_path);
-    bx::strCat(file_path, BX_COUNTOF(file_path), name);
-    bx::strCat(file_path, BX_COUNTOF(file_path), ".bin");
-
-    FILE* file_handle = fopen(file_path, "rb");
-    fseek(file_handle, 0, SEEK_END);
-    uint32_t filelen = ftell(file_handle);
-    rewind(file_handle);
-
-    void* file_buffer = malloc((filelen + 1) * sizeof(char));
-    fread(file_buffer, filelen, 1, file_handle);
-    fclose(file_handle);
-
-    const bgfx::Memory* memory = bgfx::copy(file_buffer, filelen + 1);
-
-    free(file_buffer);
-
-    return bgfx::createShader(memory);
-}
-
-bgfx::ProgramHandle load_shader_program(const char* vertex, const char* fragment)
-{
-    bgfx::ShaderHandle vs = load_shader(vertex);
-    bgfx::ShaderHandle fs = load_shader(fragment);
-
-    return bgfx::createProgram(vs, fs, true /* destroy shaders when program is destroyed */);
-}
 
 int main(int argc, char** argv)
 {
@@ -134,7 +89,7 @@ int main(int argc, char** argv)
     bgfx::IndexBufferHandle ibh = bgfx::createIndexBuffer(
         bgfx::makeRef(triangle_list, sizeof(triangle_list)));
 
-    bgfx::ProgramHandle program = load_shader_program("vs_triangle", "fs_triangle");
+    bgfx::ProgramHandle program = load_program("vs_triangle", "fs_triangle");
 
     while (!glfwWindowShouldClose(window)) {
         glfwPollEvents();

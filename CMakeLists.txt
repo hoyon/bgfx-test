@@ -27,6 +27,7 @@ find_package(GLFW REQUIRED)
 
 add_executable(graphics-playground
   src/main.cpp
+  src/shader.cpp
   shaders/vs_triangle.sc
   shaders/fs_triangle.sc
   )
