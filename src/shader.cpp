@@ -1,47 +1,47 @@
 #include "shader.hpp"
 
-#include <bx/bx.h>
-#include <bx/string.h>
-#include <bx/math.h>
+#include <cassert>
+#include <fstream>
+#include <filesystem>
+#include <vector>
 
 namespace
 {
 
-bgfx::ShaderHandle load_shader(const std::string& shader_filename)
+std::filesystem::path shader_path(const std::string& filename)
 {
-    const char* shader_path = "????";
+    std::filesystem::path base_path = "shaders";
 
     switch (bgfx::getRendererType())
     {
         case bgfx::RendererType::OpenGL:
-            shader_path = "shaders/glsl/";
+            base_path /= "glsl";
             break;
         case bgfx::RendererType::Vulkan:
-            shader_path = "shaders/spirv/";
+            base_path /= "spirv";
             break;
         default:
-            BX_CHECK(false, "Unsupported renderer type");
+            assert(false && "unsupported shader type");
             break;
     }
 
-    char file_path[512];
+    base_path /= (filename + ".bin");
+    return base_path;
+}
 
-    bx::strCopy(file_path, BX_COUNTOF(file_path), shader_path);
-    bx::strCat(file_path, BX_COUNTOF(file_path), shader_filename.c_str());
-    bx::strCat(file_path, BX_COUNTOF(file_path), ".bin");
+bgfx::ShaderHandle load_shader(const std::string& shader_filename)
+{
+    auto file_path = shader_path(shader_filename);
 
-    FILE* file_handle = fopen(file_path, "rb");
-    fseek(file_handle, 0, SEEK_END);
-    uint32_t filelen = ftell(file_handle);
-    rewind(file_handle);
+    std::ifstream ifs(file_path, std::ios::binary | std::ios::ate);
+    auto length = ifs.tellg();
 
-    void* file_buffer = malloc((filelen + 1) * sizeof(char));
-    fread(file_buffer, filelen, 1, file_handle);
-    fclose(file_handle);
+    std::vector<char> bytes(length);
 
-    const bgfx::Memory* memory = bgfx::copy(file_buffer, filelen + 1);
+    ifs.seekg(0, std::ios::beg);
+    ifs.read(&bytes[0], length);
 
-    free(file_buffer);
+    const bgfx::Memory* memory = bgfx::copy(&bytes[0], length);
 
     return bgfx::createShader(memory);
 }

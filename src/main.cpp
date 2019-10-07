@@ -126,7 +126,7 @@ int main(int argc, char** argv)
         bgfx::frame();
     }
 
-    bgfx::destroy(program);
+    free_program(program);
     bgfx::destroy(ibh);
     bgfx::destroy(vbh);
 
