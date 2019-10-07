@@ -26,7 +26,6 @@ struct PosColourVertex
 public:
     float x;
     float y;
-    float z;
     uint32_t abgr;
 };
 
@@ -114,16 +113,16 @@ int main(int argc, char** argv)
 
     bgfx::VertexLayout vertex_layout;
     vertex_layout.begin()
-        .add(bgfx::Attrib::Position, 3, bgfx::AttribType::Float)
+        .add(bgfx::Attrib::Position, 2, bgfx::AttribType::Float)
         .add(bgfx::Attrib::Color0,   4, bgfx::AttribType::Uint8, true)
         .end();
 
     auto red = 0xff0000ff;
 
     PosColourVertex triangle_vertices[] = {
-        {3.f, 3.f, 1.f, red},
-        {1.f, 1.f, 1.f, red},
-        {5.f, 1.f, 1.f, red}
+        {3.f, 3.f, red},
+        {1.f, 1.f, red},
+        {5.f, 1.f, red}
     };
 
     const uint16_t triangle_list[] = {0, 1, 2};
@@ -137,8 +136,6 @@ int main(int argc, char** argv)
 
     bgfx::ProgramHandle program = load_shader_program("vs_triangle", "fs_triangle");
 
-    int counter = 0;
-
     while (!glfwWindowShouldClose(window)) {
         glfwPollEvents();
 
@@ -146,7 +143,7 @@ int main(int argc, char** argv)
         bgfx::touch(0);
 
         bgfx::dbgTextClear();
-        bgfx::dbgTextPrintf(0, 0, 0x0f, "Frame: %d", counter++);
+        bgfx::dbgTextPrintf(0, 0, 0x0f, "Graphics playground");
 
         const bx::Vec3 at = { 0.f, 0.f, 0.f };
         const bx::Vec3 eye = { 0.f, 0.f, -10.f };
@@ -167,12 +164,16 @@ int main(int argc, char** argv)
         bgfx::setVertexBuffer(0, vbh);
         bgfx::setIndexBuffer(ibh);
 
-        bgfx::setState(BGFX_STATE_WRITE_MASK | BGFX_STATE_DEPTH_TEST_LESS);
+        bgfx::setState(BGFX_STATE_DEFAULT);
 
         bgfx::submit(0, program);
 
         bgfx::frame();
     }
+
+    bgfx::destroy(program);
+    bgfx::destroy(ibh);
+    bgfx::destroy(vbh);
 
     bgfx::shutdown();
     glfwDestroyWindow(window);
