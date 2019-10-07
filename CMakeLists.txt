@@ -24,7 +24,15 @@ add_subdirectory(deps)
 include(deps/bgfx.cmake/cmake/util/ConfigureDebugging.cmake)
 
 find_package(GLFW REQUIRED)
-add_executable(graphics-playground src/main.cpp)
+
+add_executable(graphics-playground
+  src/main.cpp
+  shaders/vs_triangle.sc
+  shaders/fs_triangle.sc
+  )
+
+add_shader(shaders/vs_triangle.sc VERTEX   OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/shaders DX11_MODEL 5_0 GLSL 330)
+add_shader(shaders/fs_triangle.sc FRAGMENT OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/shaders DX11_MODEL 5_0 GLSL 330)
 
 target_link_libraries(graphics-playground PUBLIC
     bgfx

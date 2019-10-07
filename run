@@ -5,8 +5,9 @@ set -e
 # rerun cmake if build directory doesn't exist
 if [ ! -d "build" ]; then
    mkdir build
-   cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Debug
+   cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_EXPORT_COMPILE_COMMANDS=1
 fi
 
-cmake --build build 
-./build/graphics-playground
+cmake --build build
+cd build
+./graphics-playground
