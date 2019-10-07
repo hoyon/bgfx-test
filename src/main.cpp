@@ -6,10 +6,12 @@
 #include <iostream>
 
 #include <bgfx/platform.h>
-#include <bx/bx.h>
-#include <bx/string.h>
 #include <bx/math.h>
 #include <flecs.h>
+#include <glm/vec3.hpp>
+#include <glm/mat4x4.hpp>
+#include <glm/trigonometric.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 #include "shader.hpp"
 
@@ -100,22 +102,21 @@ int main(int argc, char** argv)
         bgfx::dbgTextClear();
         bgfx::dbgTextPrintf(0, 0, 0x0f, "Graphics playground");
 
-        const bx::Vec3 at = { 0.f, 0.f, 0.f };
-        const bx::Vec3 eye = { 0.f, 0.f, -10.f };
-        float view[16];
-        bx::mtxLookAt(view, eye, at);
-        float proj[16];
-        bx::mtxProj(proj, 60.f, float(SCREEN_WIDTH)/float(SCREEN_HEIGHT), 0.1f, 100.f, bgfx::getCaps()->homogeneousDepth);
-        bgfx::setViewTransform(0, view, proj);
+        const auto at2 = glm::vec3{0.f, 0.f, 0.f};
+        const auto eye2 = glm::vec3{0.f, 0.f, -10.f};
+        // TODO: change to Right handedness
+        const auto view = glm::lookAtLH(eye2, at2, glm::vec3{0.f, 1.f, 0.f});
+
+        const auto projection = glm::perspectiveLH(glm::radians(60.f), float(SCREEN_WIDTH)/float(SCREEN_HEIGHT), 0.1f, 100.f);
+
+        // True -> ndc [-1, 1] False -> ndc [0, 1]
+        printf("%s\n", bgfx::getCaps()->homogeneousDepth ? "true" : "false");
+
+        bgfx::setViewTransform(0, &view[0][0], &projection[0][0]);
         bgfx::setViewRect(0, 0, 0, uint16_t(SCREEN_WIDTH), uint16_t(SCREEN_HEIGHT));
 
-        float mtx[16] = {
-            1, 0, 0, 0,
-            0, 1, 0, 0,
-            0, 0, 1, 0,
-            0, 0, 0, 1
-        };
-        bgfx::setTransform(mtx);
+        const auto transform = glm::identity<glm::mat4>();
+        bgfx::setTransform(&transform[0][0]);
         bgfx::setVertexBuffer(0, vbh);
         bgfx::setIndexBuffer(ibh);
 
