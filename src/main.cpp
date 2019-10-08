@@ -60,6 +60,9 @@ int main(int argc, char** argv)
 
     bgfx::init(init);
 
+    // TODO: check bgfx::getCaps()->homogenousDepth to ensure correct ndc
+    // True -> ndc [-1, 1] False -> ndc [0, 1]
+
     bgfx::setDebug(BGFX_DEBUG_TEXT);
 
     bgfx::reset(SCREEN_WIDTH, SCREEN_HEIGHT);
@@ -91,8 +94,11 @@ int main(int argc, char** argv)
     bgfx::IndexBufferHandle ibh = bgfx::createIndexBuffer(
         bgfx::makeRef(triangle_list, sizeof(triangle_list)));
 
+    bgfx::UniformHandle time_uniform = bgfx::createUniform("time", bgfx::UniformType::Vec4);
+
     bgfx::ProgramHandle program = load_program("vs_triangle", "fs_triangle");
 
+    float time = 0;
     while (!glfwWindowShouldClose(window)) {
         glfwPollEvents();
 
@@ -109,9 +115,6 @@ int main(int argc, char** argv)
 
         const auto projection = glm::perspectiveLH(glm::radians(60.f), float(SCREEN_WIDTH)/float(SCREEN_HEIGHT), 0.1f, 100.f);
 
-        // True -> ndc [-1, 1] False -> ndc [0, 1]
-        printf("%s\n", bgfx::getCaps()->homogeneousDepth ? "true" : "false");
-
         bgfx::setViewTransform(0, &view[0][0], &projection[0][0]);
         bgfx::setViewRect(0, 0, 0, uint16_t(SCREEN_WIDTH), uint16_t(SCREEN_HEIGHT));
 
@@ -122,12 +125,18 @@ int main(int argc, char** argv)
 
         bgfx::setState(BGFX_STATE_DEFAULT);
 
+        auto value = glm::vec4{time / 20, 0, 0, 0};
+        bgfx::setUniform(time_uniform, &value[0]);
+
+        time++;
+
         bgfx::submit(0, program);
 
         bgfx::frame();
     }
 
     free_program(program);
+    bgfx::destroy(time_uniform);
     bgfx::destroy(ibh);
     bgfx::destroy(vbh);
 

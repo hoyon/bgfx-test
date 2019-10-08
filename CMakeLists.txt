@@ -32,8 +32,8 @@ add_executable(graphics-playground
   shaders/fs_triangle.sc
   )
 
-add_shader(shaders/vs_triangle.sc VERTEX   OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/shaders DX11_MODEL 5_0 GLSL 330)
-add_shader(shaders/fs_triangle.sc FRAGMENT OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/shaders DX11_MODEL 5_0 GLSL 330)
+add_shader(shaders/vs_triangle.sc VERTEX   OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/shaders DX11_MODEL 5_0 GLSL_VERSION 150)
+add_shader(shaders/fs_triangle.sc FRAGMENT OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/shaders DX11_MODEL 5_0 GLSL_VERSION 150)
 
 target_link_libraries(graphics-playground PUBLIC
     bgfx
